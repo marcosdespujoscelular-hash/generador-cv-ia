@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="appTitle">Generador de CV (ATS-Friendly) - Final con Fusión</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* MOBILE FIRST: Stack inputs vertically */
+        .grid {
+            display: block;
+        }
+
+        .grid>div {
+            margin-bottom: 20px;
+        }
+
+
+        /* Estilos de Inputs */
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .file-box {
+            border: 2px dashed #d1d5db;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            background-color: #fafafa;
+        }
+
+        input[type="file"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .annex-selector {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+        }
+
+        button#combineBtn {
+            width: 100%;
+            padding: 16px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 20px;
+        }
+
+        button#combineBtn:hover {
+            background-color: #1d4ed8;
+        }
+
+        button#combineBtn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Contenedor de Idiomas */
+        .language-selector {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .language-selector button {
+            background: none;
+            border: 2px solid transparent;
+            cursor: pointer;
+            padding: 5px 10px;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+            opacity: 0.5;
+        }
+
+        /* Color verde para la selección */
+        .language-selector button.selected {
+            border-color: #059669;
+            /* Verde */
+            opacity: 1;
+            box-shadow: 0 0 8px rgba(5, 150, 105, 0.7);
+        }
+
+        .language-selector img {
+            width: 40px;
+            height: 30px;
+            vertical-align: middle;
+        }
+
+
+        #downloadArea {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            /* Apilado en móvil */
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* Desktop Grid (optional, overrides mobile for larger screens) */
+        @media (min-width: 768px) {
+            .grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            #downloadArea {
+                flex-direction: row;
+            }
+        }
+
+        /* Download Buttons */
+        .btn-download {
+            background-color: #059669;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-download-letter {
+            background-color: #1a73e8;
+        }
+
+        .btn-download:hover {
+            opacity: 0.9;
+        }
+    </style>
+    <!-- 
+    ========================================================================
+    🔴 ZONA GOOGLE ADSENSE (VERIFICACIÓN) 🔴
+    Pega aquí abajo el código <script> que te dará Google AdSense.
+    Esto conectará tu web con Google para que empiecen a salir anuncios.
+    ========================================================================
+    -->
+
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 id="mainTitle">Generador de CV (ATS-Friendly)</h1>
+        <p class="subtitle" id="subTitle">Se garantiza que el texto es seleccionable y legible para los sistemas de
+            reclutamiento.</p>
+
+        <div class="language-selector">
+            <label id="labelLangSelect">1. Selecciona el idioma de salida:</label>
+            <button id="lang-es" onclick="setLanguage('es')" class="selected"><img src="https://flagcdn.com/w40/es.png"
+                    alt="Español"></button>
+            <button id="lang-en" onclick="setLanguage('en')"><img src="https://flagcdn.com/w40/gb.png"
+                    alt="English"></button>
+            <button id="lang-de" onclick="setLanguage('de')"><img src="https://flagcdn.com/w40/de.png"
+                    alt="Deutsch"></button>
+        </div>
+
+        <div class="grid">
+            <div>
+                <label id="labelUpload">2. Sube tu CV (PDF)</label>
+                <div class="file-box" onclick="document.getElementById('pdfInput').click()">
+                    <span id="fileName">📂 Clic para buscar tu CV</span>
+                    <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="mostrarNombre()">
+                </div>
+            </div>
+
+            <div>
+                <label id="labelJobDesc">3. Pega la Oferta de Trabajo</label>
+                <textarea id="jobDescription" placeholder="Pega aquí la descripción completa del puesto..."></textarea>
+            </div>
+        </div>
+
+        <div class="annex-selector">
+            <label for="annexStartPage" id="labelAnnexPage">4. Página de inicio de anexos
+                (Imágenes/Certificados)</label>
+            <input type="number" id="annexStartPage" value="3" min="1">
+            <small id="smallAnnexDesc" style="color: #6b7280;">Ej. Si tu CV adaptado ocupa 2 páginas, y los anexos
+                empiezan en la página 3, introduce **3**.</small>
+        </div>
+
+
+        const MODELO = "gemini-2.5-flash";
+
+        const { jsPDF } = window.jspdf;
+        const { PDFDocument } = window.PDFLib;
+
+        let finalCVData = null;
+        let originalPdfBuffer = null;
+        window.appLanguage = 'es';
+
+        // DEFINICIÓN DE MÁRGENES (mm)
+        const LEFT_MARGIN = 20;
+
+        const translations = {
+        es: {
+        // UI Strings
+        TITLE: 'Generador de CV (ATS-Friendly)',
+        SUBTITLE: 'Se garantiza que el texto es seleccionable y legible para los sistemas de reclutamiento.',
+        LABEL_LANG_SELECT: '1. Selecciona el idioma de salida:',
+        LABEL_UPLOAD: '2. Sube tu CV (PDF)',
+        FILENAME_PLACEHOLDER: '📂 Clic para buscar tu CV',
+        LABEL_JOB_DESC: '3. Pega la Oferta de Trabajo',
+        JOB_DESC_PLACEHOLDER: 'Pega aquí la descripción completa del puesto...',
+        LABEL_ANNEX_PAGE: '4. Página de inicio de anexos (Imágenes/Certificados)',
+        SMALL_ANNEX_DESC: 'Ej. Si tu CV adaptado ocupa 2 páginas, y los anexos empiezan en la página 3, introduce
+        **3**.',
+        BTN_COMBINE: '5. COMBINAR Y ADAPTAR CV',
+        BTN_CV_DOWNLOAD: '📥 Descargar CV + Anexos (Fusionado)',
+        BTN_LETTER_DOWNLOAD: '📥 Descargar Carta de Presentación',
+        STATUS_COMPLETE: '✅ Proceso completado. Descarga el CV y la Carta de Presentación.',
+        STATUS_INCOMPLETE: '❌ Completa ambos campos.',
+        STATUS_VALIDATE_PAGE: '❌ Por favor, introduce un número de página válido (mínimo 1) para los anexos.',
+
+        // PDF/AI Strings
+        CV_TITLE: 'Lebenslauf (CV)',
+        EXP_TITLE: 'EXPERIENCIA LABORAL',
+        SKILLS_TITLE: 'HABILIDADES',
+        EDU_TITLE: 'EDUCACIÓN',
+        PERSONAL_TITLE: 'DATOS PERSONALES',
+        FIELD_CONTACTO: 'Contacto',
+        FIELD_NACIONALIDAD: 'Nacionalidad',
+        FIELD_ESTADO_CIVIL: 'Estado Civil',
+        FIELD_FECHA_NACIMIENTO: 'Fecha de Nacimiento',
+        FIELD_LUGAR_NACIMIENTO: 'Lugar de Nacimiento',
+        FIELD_DIRECCION: 'Dirección',
+        LETTER_SUBJECT: 'Postulación para el puesto de',
+        LETTER_CLOSING_SALUTATION: 'Atentamente,',
+        LETTER_CLOSING_BODY: 'Agradezco su tiempo y dedicación. Adjunto mi CV (Lebenslauf) para su exhaustiva revisión y
+        espero con entusiasmo una oportunidad para conversar.',
+        LETTER_GENERIC_SALUTATION: 'Estimado/a Director/a de Contratación,',
+        LETTER_GENERIC_TEAM: 'Equipo de Recursos Humanos de',
+        COUNTRY_RESIDENCE: 'País de Residencia',
+        },
+        en: {
+        // UI Strings
+        TITLE: 'CV Generator (ATS-Friendly)',
+        SUBTITLE: 'Ensures text is selectable and readable for Applicant Tracking Systems.',
+        LABEL_LANG_SELECT: '1. Select Output Language:',
+        LABEL_UPLOAD: '2. Upload your CV (PDF)',
+        FILENAME_PLACEHOLDER: '📂 Click to browse your CV',
+        LABEL_JOB_DESC: '3. Paste the Job Description',
+        JOB_DESC_PLACEHOLDER: 'Paste the complete job description here...',
+        LABEL_ANNEX_PAGE: '4. Annex Start Page (Images/Certificates)',
+        SMALL_ANNEX_DESC: 'E.g., If your adapted CV takes up 2 pages, and annexes start on page 3, enter **3**.',
+        BTN_COMBINE: '5. COMBINE AND ADAPT CV',
+        BTN_CV_DOWNLOAD: '📥 Download CV + Annexes (Merged)',
+        BTN_LETTER_DOWNLOAD: '📥 Download Cover Letter',
+        STATUS_COMPLETE: '✅ Process complete. Download the CV and Cover Letter.',
+        STATUS_INCOMPLETE: '❌ Complete both fields.',
+        STATUS_VALIDATE_PAGE: '❌ Please enter a valid page number (minimum 1) for annexes.',
+
+        // PDF/AI Strings
+        CV_TITLE: 'Curriculum Vitae (CV)',
+        EXP_TITLE: 'PROFESSIONAL EXPERIENCE',
+        SKILLS_TITLE: 'SKILLS',
+        EDU_TITLE: 'EDUCATION',
+        PERSONAL_TITLE: 'PERSONAL DATA',
+        FIELD_CONTACTO: 'Contact',
+        FIELD_NACIONALIDAD: 'Nationality',
+        FIELD_ESTADO_CIVIL: 'Marital Status',
+        FIELD_FECHA_NACIMIENTO: 'Date of Birth',
+        FIELD_LUGAR_NACIMIENTO: 'Place of Birth',
+        FIELD_DIRECCION: 'Address',
+        LETTER_SUBJECT: 'Application for the position of',
+        LETTER_CLOSING_SALUTATION: 'Sincerely,',
+        LETTER_CLOSING_BODY: 'Thank you for your time and consideration. I attach my CV for your thorough review and
+        eagerly anticipate the opportunity to discuss my application further.',
+        LETTER_GENERIC_SALUTATION: 'Dear Hiring Manager,',
+        LETTER_GENERIC_TEAM: 'Human Resources Team at',
+        COUNTRY_RESIDENCE: 'Country of Residence',
+        },
+        de: {
+        // UI Strings
+        TITLE: 'Lebenslauf Generator (ATS-freundlich)',
+        SUBTITLE: 'Stellt sicher, dass der Text für Bewerber-Tracking-Systeme lesbar ist.',
+        LABEL_LANG_SELECT: '1. Zielsprache auswählen:',
+        LABEL_UPLOAD: '2. Lebenslauf hochladen (PDF)',
+        FILENAME_PLACEHOLDER: '📂 Klicken Sie hier, um Ihren Lebenslauf zu suchen',
+        LABEL_JOB_DESC: '3. Stellenbeschreibung einfügen',
+        JOB_DESC_PLACEHOLDER: 'Fügen Sie hier die vollständige Stellenbeschreibung ein...',
+        LABEL_ANNEX_PAGE: '4. Startseite der Anlagen (Bilder/Zertifikate)',
+        SMALL_ANNEX_DESC: 'Bsp. Wenn Ihr angepasster Lebenslauf 2 Seiten umfasst und die Anlagen auf Seite 3 beginnen,
+        geben Sie **3** ein.',
+        BTN_COMBINE: '5. LEBENSLAUF KOMBINIEREN & ANPASSEN',
+        BTN_CV_DOWNLOAD: '📥 Lebenslauf + Anlagen herunterladen (Zusammengeführt)',
+        BTN_LETTER_DOWNLOAD: '📥 Anschreiben herunterladen',
+        STATUS_COMPLETE: '✅ Prozess abgeschlossen. Laden Sie den Lebenslauf und das Anschreiben herunter.',
+        STATUS_INCOMPLETE: '❌ Bitte füllen Sie beide Felder aus.',
+        STATUS_VALIDATE_PAGE: '❌ Bitte geben Sie eine gültige Seitenzahl (mindestens 1) für die Anlagen ein.',
+
+        // PDF/AI Strings
+        CV_TITLE: 'Lebenslauf (CV)',
+        EXP_TITLE: 'BERUFSERFAHRUNG',
+        SKILLS_TITLE: 'FÄHIGKEITEN',
+        EDU_TITLE: 'AUSBILDUNG',
+        PERSONAL_TITLE: 'PERSÖNLICHE DATEN',
+        FIELD_CONTACTO: 'Kontakt',
+        FIELD_NACIONALIDAD: 'Nationalität',
+        FIELD_ESTADO_CIVIL: 'Familienstand',
+        FIELD_FECHA_NACIMIENTO: 'Geburtsdatum',
+        FIELD_LUGAR_NACIMIENTO: 'Geburtsort',
+        FIELD_DIRECCION: 'Adresse',
+        LETTER_SUBJECT: 'Bewerbung für die Position als',
+        LETTER_CLOSING_SALUTATION: 'Mit freundlichen Grüßen,',
+        LETTER_CLOSING_BODY: 'Ich danke Ihnen für Ihre Zeit und Ihr Engagement. Meinen Lebenslauf füge ich zur Einsicht
+        bei und freue mich auf die Gelegenheit, meine Bewerbung in einem persönlichen Gespräch zu vertiefen.',
+        LETTER_GENERIC_SALUTATION: 'Sehr geehrte Damen und Herren,',
+        LETTER_GENERIC_TEAM: 'Personalabteilung von',
+        COUNTRY_RESIDENCE: 'Wohnsitzland',
+        }
+        };
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+
+        // --- FUNCIÓN DE ACTUALIZACIÓN DE INTERFAZ (i18n) ---
+        function updateUI(lang) {
+        const T = translations[lang];
+
+        // Títulos principales
+        document.getElementById('mainTitle').innerText = T.TITLE;
+        document.getElementById('subTitle').innerText = T.SUBTITLE;
+
+        // Labels
+        document.getElementById('labelLangSelect').innerText = T.LABEL_LANG_SELECT;
+        document.getElementById('labelUpload').innerText = T.LABEL_UPLOAD;
+        document.getElementById('labelJobDesc').innerText = T.LABEL_JOB_DESC;
+        document.getElementById('labelAnnexPage').innerText = T.LABEL_ANNEX_PAGE;
+
+        // Placeholders y Textos Pequeños
+        document.getElementById('fileName').innerText = T.FILENAME_PLACEHOLDER;
+        document.getElementById('jobDescription').placeholder = T.JOB_DESC_PLACEHOLDER;
+        document.getElementById('smallAnnexDesc').innerHTML = T.SMALL_ANNEX_DESC;
+
+        // Botones
+        document.getElementById('combineBtn').innerText = T.BTN_COMBINE;
+        document.getElementById('btnCVDownload').innerText = T.BTN_CV_DOWNLOAD;
+        document.getElementById('btnLetterDownload').innerText = T.BTN_LETTER_DOWNLOAD;
+
+        // Limpiar estado
+        document.getElementById('status').innerText = "";
+        }
+
+        function setLanguage(lang) {
+        window.appLanguage = lang;
+        document.querySelectorAll('.language-selector button').forEach(btn => {
+        btn.classList.remove('selected');
+        });
+        document.getElementById(`lang-${lang}`).classList.add('selected');
+        updateUI(lang); // Traducir la interfaz inmediatamente
+        }
+
+        // Inicializar la interfaz al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+        setLanguage(window.appLanguage);
+        });
+
+        function mostrarNombre() {
+        const input = document.getElementById('pdfInput');
+        if(input.files[0]) document.getElementById('fileName').innerText = "✅ CV Cargado: " + input.files[0].name;
+        else document.getElementById('fileName').innerText = translations[window.appLanguage].FILENAME_PLACEHOLDER;
+        }
+
+        // --- FUNCIÓN DE GENERACIÓN DE NOMBRE DE ARCHIVO ---
+        function generateFilename(data, docType) {
+        const company = data.destinatario.nombre_empresa || "EMPRESA_OBJETIVO";
+        const fullName = data.nombre || "CANDIDATO";
+
+        const now = new Date();
+        const datePart = now.getFullYear().toString() +
+        (now.getMonth() + 1).toString().padStart(2, '0') +
+        now.getDate().toString().padStart(2, '0');
+
+        const nameParts = fullName.trim().split(' ');
+        const surname = nameParts.length > 1 ? nameParts[nameParts.length - 1] : nameParts[0];
+
+        let filename = "";
+        if (docType === 'CV') {
+        filename = `${company}_${datePart}_CV_${surname}`;
+        } else {
+        filename = `${company}_${datePart}_CARTA_${surname}`;
+        }
+
+        return filename.toUpperCase().replace(/\s+/g, '_').replace(/[^A-Z0-9_]/g, '') + ".pdf";
+        }
+
+        async function combinarDocumentos() {
+        const fileInput = document.getElementById('pdfInput');
+        const jobDesc = document.getElementById('jobDescription').value;
+        const btn = document.getElementById('combineBtn');
+        const status = document.getElementById('status');
+        const downloadArea = document.getElementById('downloadArea');
+        const previewContainer = document.getElementById('previewContainer');
+        const lang = window.appLanguage;
+        const T = translations[lang];
+
+        if (!fileInput.files[0] || jobDesc.length < 20) { status.innerText=T.STATUS_INCOMPLETE; return; } const
+            annexStartPage=parseInt(document.getElementById('annexStartPage').value); if (isNaN(annexStartPage) ||
+            annexStartPage < 1) { status.innerText=T.STATUS_VALIDATE_PAGE; return; } btn.disabled=true;
+            downloadArea.style.display='none' ; previewContainer.style.display='none' ; previewContainer.innerHTML='' ;
+            status.innerText=`⏳ 1/3 ${T.LABEL_UPLOAD} y ${T.LABEL_JOB_DESC}...`; try { const file=fileInput.files[0];
+            const buffer=await file.arrayBuffer(); originalPdfBuffer=buffer; const pdfData=await extraerTexto(file);
+            status.innerText=`🧠 2/3 ${T.BTN_COMBINE}...`; const jsonCV=await procesarConIA(pdfData.text, jobDesc,
+            lang); finalCVData=jsonCV; status.innerText=T.STATUS_COMPLETE; renderNewCVTemplate(jsonCV); setTimeout(()=>
+            {
+            previewContainer.style.display = 'block';
+            downloadArea.style.display = 'flex';
+            }, 500);
+
+            } catch (error) {
+            console.error(error);
+            status.innerText = "❌ Error: " + error.message;
+            } finally {
+            btn.disabled = false;
+            }
+            }
+
+            async function extraerTexto(file) {
+            const pdf = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
+            let fullText = "";
+            const maxPagesToProcess = Math.min(pdf.numPages, 5);
+
+            for (let i = 1; i <= maxPagesToProcess; i++) { const page=await pdf.getPage(i); const content=await
+                page.getTextContent(); fullText +=content.items.map(item=> item.str).join(' ') + "\n";
+                }
+
+                return { text: fullText, totalPages: pdf.numPages };
+                }
+
+                async function procesarConIA(cv, oferta, lang) {
+                const url =
+                `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent?key=${API_KEY}`;
+
+                const langInstruction = `Todo el contenido de los campos de texto debe ser escrito y traducido al
+                idioma: ${lang === 'es' ? 'Español' : lang === 'en' ? 'Inglés' : 'Alemán'}.`;
+
+                const prompt = `
+                Actúa como un reclutador experto y redactor de CVs. Tu tarea es generar un CV adaptado y una Carta de
+                Presentación altamente persuasiva.
+                ${langInstruction}
+
+                CV ORIGINAL DEL USUARIO: ${cv}
+                OFERTA DE TRABAJO OBJETIVO: ${oferta}
+
+                INSTRUCCIONES DE SALIDA:
+                1. Devuelve SOLAMENTE un objeto JSON que siga exactamente el esquema provisto.
+                2. **EXTRACCIÓN PERSONAL:** Extráe la Dirección, Estado Civil, Nacionalidad, Fecha y Lugar de Nacimiento
+                del CV original. Si la información no se encuentra, devuelve "No encontrado" o la inferencia más
+                cercana.
+                3. **CRUCIAL PARA LA CARTA:** Genera el cuerpo de la carta de presentación (carta_cuerpo_adaptado)
+                siguiendo estos criterios:
+                a. Debe ser entusiasta y mostrar interés genuino en la empresa.
+                b. Debe comparar la experiencia del usuario con los requisitos del puesto.
+                c. NO DEBES INVENTAR: Solo conecta las palabras clave y logros que el usuario ya tiene.
+
+                ESQUEMA JSON (Output MUST be valid JSON):
+                {
+                "nombre": "Nombre y Apellido",
+                "contacto": "Email | Teléfono | LinkedIn",
+                "pais_usuario": "País inferido del contacto o CV (ej: Venezuela)",
+                "perfil_adaptado": "Resumen profesional reescrito para la oferta (Máximo 3 líneas).",
+                "experiencia_laboral": [
+                {
+                "cargo": "Título del puesto",
+                "empresa": "Nombre de la empresa",
+                "fechas": "Fechas de inicio/fin",
+                "logros_adaptados": ["Logro clave reescrito con keywords de la oferta."]
+                }
+                ],
+                "educacion": "Detalle de educación (mantenido del original).",
+                "habilidades_adaptadas": ["Skill 1 (relevante)", "Skill 2 (relevante)"],
+                "datos_personales": {
+                "fecha_nacimiento": "DD.MM.YYYY (o No encontrado)",
+                "lugar_nacimiento": "Ciudad, País (o No encontrado)",
+                "nacionalidad": "Nacionalidad extraída (o No encontrado)",
+                "estado_civil": "Estado Civil (o No encontrado)",
+                "direccion": "Dirección completa (o No encontrado)"
+                },
+                "destinatario": {
+                "nombre_contacto": "Nombre y Apellido del reclutador (o Equipo de RRHH)",
+                "puesto_solicitado": "Título del puesto extraído de la oferta",
+                "nombre_empresa": "Nombre de la empresa objetivo",
+                "ciudad_empresa": "Ciudad de la empresa (o el país, si la ciudad no es clara)"
+                },
+                "carta_cuerpo_adaptado": "Texto completo y persuasivo de la carta de presentación, dividido en párrafos
+                con saltos de línea (\\n) según las instrucciones del usuario."
+                }
+                `;
+
+                const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message || "Error desconocido. Revisa si el contenido del CV
+                es muy largo.");
+
+                let jsonText = data.candidates[0].content.parts[0].text.trim();
+                if (jsonText.startsWith('```')) {
+                jsonText = jsonText.replace(/```json\n?|```/g, '');
+                }
+
+                try {
+                return JSON.parse(jsonText);
+                } catch (e) {
+                console.error("Error de parseo JSON:", jsonText);
+                throw new Error("La IA no pudo devolver el formato JSON válido. Intenta simplificar el CV o la Oferta de
+                Trabajo.");
+                }
+                }
+
+                function renderNewCVTemplate(data) {
+                const previewContainer = document.getElementById('previewContainer');
+
+                let textPreview = `
+                --- CV ADAPTADO (PREVISUALIZACIÓN DE TEXTO SELECCIONABLE) ---
+
+                NOMBRE: ${data.nombre || 'No encontrado'}
+                CONTACTO: ${data.contacto || 'No encontrado'}
+                PAÍS: ${data.pais_usuario || 'No encontrado'}
+
+                --- DATOS PERSONALES ---
+                Nacimiento: ${data.datos_personales.fecha_nacimiento || ''} en ${data.datos_personales.lugar_nacimiento
+                || ''}
+                Nacionalidad: ${data.datos_personales.nacionalidad || 'No encontrado'}
+                Estado Civil: ${data.datos_personales.estado_civil || 'No encontrado'}
+                Dirección: ${data.datos_personales.direccion || 'No encontrado'}
+
+                --- CARTA DE PRESENTACIÓN COMPLETA ---
+                ${data.carta_cuerpo_adaptado || 'Cuerpo de la carta no disponible.'}
+
+                --- EXPERIENCIA LABORAL ---
+                `;
+
+                if (Array.isArray(data.experiencia_laboral)) {
+                data.experiencia_laboral.forEach(exp => {
+                textPreview += `
+                Puesto: ${exp.cargo} en ${exp.empresa} (${exp.fechas})
+                Logros:
+                - ${Array.isArray(exp.logros_adaptados) ? exp.logros_adaptados.map(l => `• ${l}`).join('\n- ') : 'No
+                disponibles.'}
+
+                `;
+                });
+                }
+
+                textPreview += `
+                --- HABILIDADES ---
+                ${data.habilidades_adaptadas.join(' | ') || 'Habilidades no disponibles.'}
+
+                --- EDUCACIÓN ---
+                ${data.educacion || 'Educación no disponible.'}
+                ----------------------------------------
+                `;
+
+                previewContainer.innerHTML = `
+                <pre>${textPreview}</pre>`;
+                }
+
+                // --- LÓGICA DE GENERACIÓN DE PDF ---
+
+                const writeSection = (doc, title, content, cursorY, fontSize, style = 'normal', indent = 0,
+                requiredTextWidth) => {
+                const margin = LEFT_MARGIN;
+                const effectiveTextWidth = requiredTextWidth;
+
+
+                if (!content && title !== "CONTACTO") return cursorY;
+
+                if (cursorY > doc.internal.pageSize.height - 30) {
+                doc.addPage();
+                cursorY = 15;
+                }
+
+                if (title && title !== "CONTACTO") {
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text(title.toUpperCase(), margin, cursorY);
+                cursorY += 2;
+                doc.line(margin, cursorY, doc.internal.pageSize.width - LEFT_MARGIN, cursorY);
+                cursorY += 5;
+                }
+
+                doc.setFontSize(fontSize);
+                doc.setFont(undefined, style);
+
+                if (typeof content === 'string' && content) {
+                const lines = doc.splitTextToSize(content, effectiveTextWidth - indent);
+                lines.forEach(line => {
+                if (cursorY > doc.internal.pageSize.height - 10) {
+                doc.addPage();
+                cursorY = 15;
+                }
+                doc.text(line, margin + indent, cursorY);
+                cursorY += 5;
+                });
+                } else if (Array.isArray(content)) {
+                content.forEach(item => {
+                const isExperience = (typeof item === 'object' && item.logros_adaptados);
+
+                if (isExperience) {
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                const titleLine = `${item.cargo} en ${item.empresa} (${item.fechas})`;
+                doc.text(titleLine, margin, cursorY);
+                cursorY += 5;
+
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'normal');
+                const achievementText = item.logros_adaptados.map(l => `• ${l}`).join('\n');
+                const achievementLines = doc.splitTextToSize(achievementText, effectiveTextWidth - 5);
+
+                achievementLines.forEach(line => {
+                if (cursorY > doc.internal.pageSize.height - 10) {
+                doc.addPage();
+                cursorY = 15;
+                }
+                doc.text(line, margin + 5, cursorY);
+                cursorY += 5;
+                });
+                cursorY += 3;
+
+                } else {
+                const lines = doc.splitTextToSize(item, effectiveTextWidth);
+                lines.forEach(line => {
+                if (cursorY > doc.internal.pageSize.height - 10) {
+                doc.addPage();
+                cursorY = 15;
+                }
+                doc.text(line, margin, cursorY);
+                cursorY += 5;
+                });
+                cursorY += 2;
+                }
+                });
+                }
+                cursorY += 5;
+                return cursorY;
+                };
+
+                const writePersonalDataList = (doc, data, cursorY, T) => {
+                const margin = LEFT_MARGIN;
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+
+                const details = [
+                { label: T.FIELD_CONTACTO, value: data.contacto.replace(/\|/g, ' • ') },
+                { label: T.FIELD_DIRECCION, value: data.datos_personales.direccion },
+                { label: T.FIELD_NACIONALIDAD, value: data.datos_personales.nacionalidad },
+                { label: T.FIELD_ESTADO_CIVIL, value: data.datos_personales.estado_civil },
+                { label: T.FIELD_FECHA_NACIMIENTO, value: data.datos_personales.fecha_nacimiento },
+                { label: T.FIELD_LUGAR_NACIMIENTO, value: data.datos_personales.lugar_nacimiento }
+                ];
+
+                details.forEach(detail => {
+                if (detail.value && detail.value !== 'No encontrado') {
+                doc.setFont(undefined, 'bold');
+                doc.text(`${detail.label}:`, margin, cursorY);
+                doc.setFont(undefined, 'normal');
+                doc.text(detail.value, margin + 45, cursorY);
+                cursorY += 5;
+                }
+                });
+
+                cursorY += 10;
+                return cursorY;
+                }
+
+                // --- 1. FUNCIÓN DE DESCARGA: CV (FUSIÓN CON CONTROL DE PÁGINA) ---
+                async function descargarCV() {
+                if (!finalCVData || !originalPdfBuffer) {
+                alert("Error: El contenido del CV o el archivo original no se han procesado. Intenta COMBINAR de
+                nuevo.");
+                return;
+                }
+
+                const annexStartPage = parseInt(document.getElementById('annexStartPage').value);
+
+                const doc = new jsPDF();
+                let cursorY = 15;
+                const pageWidth = doc.internal.pageSize.width;
+                const T = translations[window.appLanguage];
+
+                // CÁLCULO DEL ANCHO PARA CV (30mm de margen derecho para seguridad anti-recorte)
+                const CV_RIGHT_MARGIN = 30;
+                const CV_TEXT_WIDTH = pageWidth - LEFT_MARGIN - CV_RIGHT_MARGIN;
+
+                // --- GENERACIÓN DEL CV DE TEXTO (PÁGINAS ATS) ---
+                doc.setFontSize(24);
+                doc.setFont(undefined, 'bold');
+                doc.text(finalCVData.nombre || T.CV_TITLE, pageWidth / 2, cursorY, { align: 'center' });
+                cursorY += 15;
+
+                cursorY = writeSection(doc, T.PERSONAL_TITLE, null, cursorY, 10, 'normal', 0, CV_TEXT_WIDTH);
+                cursorY = writePersonalDataList(doc, finalCVData, cursorY, T);
+
+                cursorY = writeSection(doc, T.EXP_TITLE, finalCVData.experiencia_laboral, cursorY, 10, 'normal', 0,
+                CV_TEXT_WIDTH);
+                cursorY = writeSection(doc, T.SKILLS_TITLE, finalCVData.habilidades_adaptadas.join(' | '), cursorY, 10,
+                'normal', 0, CV_TEXT_WIDTH);
+                cursorY = writeSection(doc, T.EDU_TITLE, finalCVData.educacion, cursorY, 10, 'normal', 0,
+                CV_TEXT_WIDTH);
+
+                // -----------------------------------------------------
+                // --- FUSIÓN DE PDFS (COPIA SELECTIVA DE ANEXOS) ---
+                // -----------------------------------------------------
+
+                const newDocBytes = doc.output('arraybuffer'); // Obtener el CV de texto como buffer
+                const finalPdf = await PDFDocument.create(); // Crear el documento final
+
+                // 1. Añadir páginas del CV de texto
+                const textPdf = await PDFDocument.load(newDocBytes);
+                const copiedTextPages = await finalPdf.copyPages(textPdf, textPdf.getPageIndices());
+                copiedTextPages.forEach(page => finalPdf.addPage(page));
+
+                // 2. Añadir páginas de Anexos (a partir de la página seleccionada)
+                const originalPdf = await PDFDocument.load(originalPdfBuffer);
+                const totalOriginalPages = originalPdf.getPageCount();
+
+                const pagesToCopyIndices = [];
+
+                // Copiar índices (0-based) desde la página de inicio seleccionada (1-based) hasta el final.
+                if (annexStartPage <= totalOriginalPages) { for (let i=annexStartPage - 1; i < totalOriginalPages; i++)
+                    { pagesToCopyIndices.push(i); } } if (pagesToCopyIndices.length> 0) {
+                    const copiedAnnexPages = await finalPdf.copyPages(originalPdf, pagesToCopyIndices);
+                    copiedAnnexPages.forEach(page => finalPdf.addPage(page));
+                    }
+
+                    // 3. Guardar el PDF fusionado
+                    const pdfBytes = await finalPdf.save();
+
+                    // Descargar el archivo
+                    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+
+                    // ** APLICAR NOMBRE DE ARCHIVO PERSONALIZADO **
+                    link.download = generateFilename(finalCVData, 'CV');
+
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    }
+
+                    // --- 2. FUNCIÓN DE DESCARGA: CARTA DE PRESENTACIÓN ---
+                    function descargarCartaPresentacion() {
+                    if (!finalCVData || !finalCVData.destinatario || !finalCVData.carta_cuerpo_adaptado) {
+                    alert("Error: El contenido del CV o la carta no se han procesado. Intenta COMBINAR de nuevo.");
+                    return;
+                    }
+
+                    const doc = new jsPDF();
+                    let cursorY = 20;
+                    const margin = LEFT_MARGIN;
+                    const pageWidth = doc.internal.pageSize.width;
+
+                    const data = finalCVData;
+                    const dest = data.destinatario;
+                    const T = translations[window.appLanguage];
+
+                    // CÁLCULO DEL ANCHO PARA CARTA (25mm de margen derecho)
+                    const LETTER_RIGHT_MARGIN = 25;
+                    const LETTER_TEXT_WIDTH = pageWidth - LEFT_MARGIN - LETTER_RIGHT_MARGIN;
+
+                    const contacto = dest.nombre_contacto &&
+                    dest.nombre_contacto.toLowerCase().includes(T.LETTER_GENERIC_TEAM.toLowerCase().split(' ')[0])
+                    ? `${T.LETTER_GENERIC_SALUTATION} ${dest.nombre_empresa || ''},`
+                    : (dest.nombre_contacto && dest.nombre_contacto !== 'No encontrado'
+                    ? `Estimado/a ${dest.nombre_contacto},`
+                    : `${T.LETTER_GENERIC_SALUTATION} ${dest.nombre_empresa || 'la empresa'},`);
+
+                    const puesto = dest.puesto_solicitado && dest.puesto_solicitado !== 'No encontrado' ?
+                    dest.puesto_solicitado : T.LETTER_SUBJECT.split(' ').pop();
+                    const paisUsuario = data.pais_usuario && data.pais_usuario !== 'No encontrado' ? data.pais_usuario :
+                    T.COUNTRY_RESIDENCE;
+
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(data.nombre || 'Tu Nombre', pageWidth - margin, cursorY, { align: 'right' });
+                    cursorY += 5;
+                    doc.text(data.contacto.replace(/\|/g, ' • ') || 'Tu Contacto', pageWidth - margin, cursorY, { align:
+                    'right' });
+                    cursorY += 15;
+
+                    doc.setFont(undefined, 'bold');
+                    doc.text(dest.nombre_contacto || T.LETTER_GENERIC_TEAM, margin, cursorY);
+                    cursorY += 5;
+                    doc.setFont(undefined, 'normal');
+                    doc.text(`Departamento de ${puesto}` || 'Departamento de Contratación', margin, cursorY);
+                    cursorY += 5;
+                    doc.text(dest.nombre_empresa || 'Empresa Objetivo', margin, cursorY);
+                    cursorY += 5;
+                    doc.text(dest.ciudad_empresa || 'Ciudad/País', margin, cursorY);
+                    cursorY += 10;
+
+                    const today = new Date().toLocaleDateString(window.appLanguage === 'es' ? 'es-ES' :
+                    window.appLanguage === 'de' ? 'de-DE' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    doc.text(`${paisUsuario}, ${today}`, pageWidth - margin, cursorY, { align: 'right' });
+                    cursorY += 10;
+                    doc.setFont(undefined, 'bold');
+                    doc.text(`${T.LETTER_SUBJECT} ${puesto}`, margin, cursorY);
+                    cursorY += 10;
+
+                    doc.setFont(undefined, 'normal');
+                    doc.text(contacto, margin, cursorY);
+                    cursorY += 10;
+
+                    const letterBody = data.carta_cuerpo_adaptado;
+                    const paragraphs = letterBody.split('\n').filter(p => p.trim());
+
+                    paragraphs.forEach(paragraph => {
+                    cursorY = writeSection(doc, "", paragraph, cursorY, 10, 'normal', 0, LETTER_TEXT_WIDTH);
+                    cursorY += 3;
+                    });
+                    cursorY += 7;
+
+                    cursorY = writeSection(doc, "", T.LETTER_CLOSING_BODY, cursorY, 10, 'normal', 0, LETTER_TEXT_WIDTH);
+                    cursorY += 5;
+
+                    doc.text(T.LETTER_CLOSING_SALUTATION, margin, cursorY);
+                    cursorY += 10;
+                    doc.text(data.nombre || 'Tu Nombre', margin, cursorY);
+
+                    const filename = generateFilename(finalCVData, 'CARTA');
+                    doc.save(filename);
+                    }
+                    </script>
+
+</body>
+
+</html>
