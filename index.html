@@ -4,30 +4,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="appTitle">Generador de CV (ATS-Friendly) - Final con Fusión</title>
+    <title id="appTitle">Generador de CV (ATS-Friendly)</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
-    
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5016816171104319"
-     crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5016816171104319"
+         crossorigin="anonymous"></script>
 
     <style>
+        :root {
+            --primary-color: #0f172a; /* Azul oscuro serio */
+            --primary-hover: #1e293b;
+            --accent-color: #10b981; /* Verde esmeralda moderno */
+            --bg-color: #f8fafc; /* Gris muy claro */
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-heading: #0f172a;
+            --border-color: #e2e8f0;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f0f2f5;
-            padding: 20px;
-            color: #1f2937;
+            font-family: 'Inter', sans-serif; /* Cambio de fuente */
+            background-color: var(--bg-color);
+            padding: 40px 20px;
+            color: var(--text-main);
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 850px;
             margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: var(--card-bg);
+            padding: 50px;
+            border-radius: 12px; /* Bordes menos redondeados */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Sombra sutil */
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 10px;
+            letter-spacing: -0.025em; /* Tracking moderno */
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #64748b;
+            margin-bottom: 40px;
+            font-weight: 300;
         }
 
         /* MOBILE FIRST: Stack inputs vertically */
@@ -36,161 +67,187 @@
         }
 
         .grid>div {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
-
 
         /* Estilos de Inputs */
         label {
             display: block;
-            font-weight: 600;
+            font-weight: 500;
             margin-bottom: 8px;
-            color: #374151;
+            color: var(--text-heading);
+            font-size: 0.95em;
         }
 
         .file-box {
-            border: 2px dashed #d1d5db;
-            padding: 30px 20px;
+            border: 2px dashed #cbd5e1;
+            padding: 40px 20px;
             text-align: center;
             border-radius: 8px;
             cursor: pointer;
-            transition: 0.2s;
-            background-color: #fafafa;
+            transition: all 0.2s ease;
+            background-color: #f1f5f9;
         }
 
-        input[type="file"],
-        input[type="number"] {
+        .file-box:hover {
+            border-color: var(--primary-color);
+            background-color: #e2e8f0;
+        }
+
+        input[type="number"],
+        textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px 16px;
             box-sizing: border-box;
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             font-family: inherit;
+            font-size: 0.95em;
+            transition: border-color 0.2s;
+            background-color: #fff;
         }
-
-        input[type="file"] {
-            display: none;
+        
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
         }
 
         textarea {
-            width: 100%;
-            height: 180px;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-family: inherit;
+            height: 160px;
             resize: vertical;
-            box-sizing: border-box;
         }
 
         .annex-selector {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px dashed #ccc;
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
         }
 
         button#combineBtn {
             width: 100%;
-            padding: 16px;
-            background-color: #1a73e8;
+            padding: 18px;
+            background-color: var(--primary-color);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 20px;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: 30px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         button#combineBtn:hover {
-            background-color: #1d4ed8;
+            background-color: var(--primary-hover);
+        }
+        
+        button#combineBtn:active {
+            transform: scale(0.99);
         }
 
         button#combineBtn:disabled {
-            background-color: #9ca3af;
+            background-color: #94a3b8;
             cursor: not-allowed;
         }
 
-        /* BARRA DE PROGRESO (NUEVO ESTILO) */
+        /* BARRA DE PROGRESO (Minimalista) */
         .progress-container {
             width: 100%;
-            background-color: #e5e7eb;
-            border-radius: 8px;
-            margin-top: 20px;
-            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 100px;
+            margin-top: 25px;
+            height: 6px;
             overflow: hidden;
-            display: none; /* Oculto por defecto */
+            display: none;
         }
 
         .progress-bar {
             height: 100%;
             width: 0%;
-            background-color: #1a73e8; /* Azul Google */
+            background-color: var(--primary-color);
             transition: width 0.5s ease-in-out;
-            border-radius: 8px;
+            border-radius: 100px;
         }
 
         /* Contenedor de Idiomas */
         .language-selector {
-            text-align: center;
-            margin-bottom: 30px;
+            text-align: right; /* Alineado a la derecha para estilo moderno */
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .language-selector label {
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: 400;
+            color: #64748b;
         }
 
         .language-selector button {
-            background: none;
-            border: 2px solid transparent;
+            background: white;
+            border: 1px solid var(--border-color);
             cursor: pointer;
-            padding: 5px 10px;
-            margin: 0 5px;
-            border-radius: 5px;
-            transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
-            opacity: 0.5;
+            padding: 6px 12px;
+            margin-left: 5px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            opacity: 0.7;
+            filter: grayscale(100%); /* Banderas en gris por defecto */
+        }
+        
+        .language-selector button:hover {
+            opacity: 1;
+            filter: grayscale(0%);
         }
 
-        /* Color verde para la selección */
+        /* Estado seleccionado */
         .language-selector button.selected {
-            border-color: #059669;
-            /* Verde */
+            border-color: var(--primary-color);
             opacity: 1;
-            box-shadow: 0 0 8px rgba(5, 150, 105, 0.7);
+            filter: grayscale(0%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .language-selector img {
-            width: 40px;
-            height: 30px;
+            width: 24px;
             vertical-align: middle;
         }
 
 
         #downloadArea {
-            text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
             display: flex;
             flex-direction: column;
-            /* Apilado en móvil */
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
-            /* Borde superior para separar visualmente */
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
         }
 
         #previewContainer {
             margin-top: 30px;
-            background: #f9fafb;
-            padding: 20px;
+            background: #f1f5f9;
+            padding: 25px;
             border-radius: 8px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-color);
+            font-family: 'Courier New', Courier, monospace; /* Estilo código para preview */
+            font-size: 0.9em;
+            color: #333;
         }
 
-        /* Desktop Grid (optional, overrides mobile for larger screens) */
+        /* Desktop Grid */
         @media (min-width: 768px) {
             .grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 20px;
+                gap: 30px;
             }
 
             #downloadArea {
@@ -198,92 +255,105 @@
             }
         }
 
-        /* Download Buttons */
+        /* Botones de Descarga */
         .btn-download {
-            background-color: #059669;
-            color: white;
-            padding: 12px 18px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
+            background-color: white;
+            color: var(--text-heading);
+            padding: 14px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-
-        .btn-download-letter {
-            background-color: #1a73e8;
-        }
-
+        
         .btn-download:hover {
-            opacity: 0.9;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: #f8fafc;
         }
+
+        /* Botón de carta destacado ligeramente diferente */
+        .btn-download-letter {
+            border-color: transparent;
+            background-color: #f1f5f9;
+        }
+
     </style>
 </head>
 
 <body>
 
     <div class="container">
-        <h1 id="mainTitle">Generador de CV (ATS-Friendly)</h1>
-        <p class="subtitle" id="subTitle">Se garantiza que el texto es seleccionable y legible para los sistemas de
-            reclutamiento.</p>
-
+        
         <div class="language-selector">
-            <label id="labelLangSelect">1. Selecciona el idioma de salida:</label>
-            <button id="lang-es" onclick="setLanguage('es')" class="selected"><img src="https://flagcdn.com/w40/es.png"
-                    alt="Español"></button>
-            <button id="lang-en" onclick="setLanguage('en')"><img src="https://flagcdn.com/w40/gb.png"
-                    alt="English"></button>
-            <button id="lang-de" onclick="setLanguage('de')"><img src="https://flagcdn.com/w40/de.png"
-                    alt="Deutsch"></button>
+            <label id="labelLangSelect">Idioma / Language:</label>
+            <button id="lang-es" onclick="setLanguage('es')" class="selected"><img src="https://flagcdn.com/w40/es.png" alt="Español"></button>
+            <button id="lang-en" onclick="setLanguage('en')"><img src="https://flagcdn.com/w40/gb.png" alt="English"></button>
+            <button id="lang-de" onclick="setLanguage('de')"><img src="https://flagcdn.com/w40/de.png" alt="Deutsch"></button>
         </div>
+
+        <h1 id="mainTitle">Generador de CV</h1>
+        <p class="subtitle" id="subTitle">Optimización ATS inteligente y fusión de documentos.</p>
 
         <div class="grid">
             <div>
-                <label id="labelUpload">2. Sube tu CV (PDF)</label>
+                <label id="labelUpload">1. Tu CV Actual (PDF)</label>
                 <div class="file-box" onclick="document.getElementById('pdfInput').click()">
-                    <span id="fileName">📂 Clic para buscar tu CV</span>
+                    <div style="font-size: 2em; margin-bottom: 10px;">📄</div>
+                    <span id="fileName" style="font-weight: 500;">Seleccionar archivo...</span>
                     <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="mostrarNombre()">
                 </div>
             </div>
 
             <div>
-                <label id="labelJobDesc">3. Pega la Oferta de Trabajo</label>
-                <textarea id="jobDescription" placeholder="Pega aquí la descripción completa del puesto..."></textarea>
+                <label id="labelJobDesc">2. Descripción de la Oferta</label>
+                <textarea id="jobDescription" placeholder="Pega aquí el texto de la oferta de trabajo para adaptar tu perfil..."></textarea>
             </div>
         </div>
 
         <div class="annex-selector">
-            <label for="annexStartPage" id="labelAnnexPage">4. Página de inicio de anexos
-                (Imágenes/Certificados)</label>
-            <input type="number" id="annexStartPage" value="3" min="1">
-            <small id="smallAnnexDesc" style="color: #6b7280;">Ej. Si tu CV adaptado ocupa 2 páginas, y los anexos
-                empiezan en la página 3, introduce **3**.</small>
+            <label for="annexStartPage" id="labelAnnexPage">3. Configuración de Anexos</label>
+            <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px;">
+                <span style="font-size: 0.9em;">Iniciar anexos en página:</span>
+                <input type="number" id="annexStartPage" value="3" min="1" style="width: 80px;">
+            </div>
+            <small id="smallAnnexDesc" style="display:block; margin-top:8px; color: #64748b; font-size: 0.85em;">
+                (Ej. Si tu nuevo CV ocupa 2 páginas, los anexos del original se pegarán a partir de la 3).
+            </small>
         </div>
 
 
-        <button id="combineBtn" onclick="combinarDocumentos()">5. COMBINAR Y ADAPTAR CV</button>
+        <button id="combineBtn" onclick="combinarDocumentos()">Generar y Adaptar CV</button>
         
         <div class="progress-container" id="progressContainer">
             <div class="progress-bar" id="progressBar"></div>
         </div>
 
-        <p id="status" style="text-align:center; margin-top:10px; color: #6b7280; font-size: 0.9em;"></p>
+        <p id="status" style="text-align:center; margin-top:15px; color: #64748b; font-size: 0.9em; font-weight: 500;"></p>
 
         <div id="downloadArea" style="display: none;">
-            <button class="btn-download" id="btnCVDownload" onclick="descargarCV()">📥 Descargar CV + Anexos
-                (Fusionado)</button>
-            <button class="btn-download btn-download-letter" id="btnLetterDownload"
-                onclick="descargarCartaPresentacion()">📥 Descargar Carta de Presentación</button>
+            <button class="btn-download" id="btnCVDownload" onclick="descargarCV()">
+                <span>📥</span> Descargar CV Optimizado
+            </button>
+            <button class="btn-download btn-download-letter" id="btnLetterDownload" onclick="descargarCartaPresentacion()">
+                <span>📝</span> Descargar Carta Presentación
+            </button>
         </div>
 
-        <div id="previewContainer" style="display:none;">
-        </div>
+        <div id="previewContainer" style="display:none;"></div>
 
     </div>
 
     <script>
         // --- 0. CONFIGURACIÓN GLOBAL Y TRADUCCIONES ---
-        const API_KEY = "AIzaSyB4Ky_nw8MIxh7eT7z6Vfr_W6dY1eHaIVw"; // ASEGURATE DE QUE ESTA CLAVE TENGA PERMISOS
+        // ¡IMPORTANTE!: Tu API Key está aquí. Asegúrate de que siga siendo la correcta.
+        const API_KEY = "AIzaSyB4Ky_nw8MIxh7eT7z6Vfr_W6dY1eHaIVw"; 
         const MODELO = "gemini-2.5-flash";
 
         const { jsPDF } = window.jspdf;
@@ -299,23 +369,23 @@
         const translations = {
             es: {
                 // UI Strings
-                TITLE: 'Generador de CV (ATS-Friendly)',
-                SUBTITLE: 'Se garantiza que el texto es seleccionable y legible para los sistemas de reclutamiento.',
-                LABEL_LANG_SELECT: '1. Selecciona el idioma de salida:',
-                LABEL_UPLOAD: '2. Sube tu CV (PDF)',
-                FILENAME_PLACEHOLDER: '📂 Clic para buscar tu CV',
-                LABEL_JOB_DESC: '3. Pega la Oferta de Trabajo',
-                JOB_DESC_PLACEHOLDER: 'Pega aquí la descripción completa del puesto...',
-                LABEL_ANNEX_PAGE: '4. Página de inicio de anexos (Imágenes/Certificados)',
-                SMALL_ANNEX_DESC: 'Ej. Si tu CV adaptado ocupa 2 páginas, y los anexos empiezan en la página 3, introduce **3**.',
-                BTN_COMBINE: '5. COMBINAR Y ADAPTAR CV',
-                BTN_CV_DOWNLOAD: '📥 Descargar CV + Anexos (Fusionado)',
-                BTN_LETTER_DOWNLOAD: '📥 Descargar Carta de Presentación',
-                STATUS_COMPLETE: '✅ Proceso completado. Descarga tus archivos abajo.',
-                STATUS_INCOMPLETE: '❌ Completa ambos campos.',
-                STATUS_VALIDATE_PAGE: '❌ Por favor, introduce un número de página válido (mínimo 1) para los anexos.',
-                STATUS_READING: '📖 Leyendo PDF...',
-                STATUS_THINKING: '🧠 La IA está redactando tu CV y Carta (esto toma unos segundos)...',
+                TITLE: 'Generador de CV (ATS)',
+                SUBTITLE: 'Optimización ATS inteligente y fusión de documentos.',
+                LABEL_LANG_SELECT: 'Idioma:',
+                LABEL_UPLOAD: '1. Tu CV Actual (PDF)',
+                FILENAME_PLACEHOLDER: 'Seleccionar archivo...',
+                LABEL_JOB_DESC: '2. Descripción de la Oferta',
+                JOB_DESC_PLACEHOLDER: 'Pega aquí el texto de la oferta...',
+                LABEL_ANNEX_PAGE: '3. Configuración de Anexos',
+                SMALL_ANNEX_DESC: '(Ej. Si tu nuevo CV ocupa 2 páginas, los anexos se pegarán a partir de la 3).',
+                BTN_COMBINE: 'GENERAR Y ADAPTAR CV',
+                BTN_CV_DOWNLOAD: '📥 Descargar CV Optimizado',
+                BTN_LETTER_DOWNLOAD: '📝 Descargar Carta Presentación',
+                STATUS_COMPLETE: 'Proceso finalizado. Tus documentos están listos.',
+                STATUS_INCOMPLETE: '⚠️ Por favor, sube tu CV y la descripción de la oferta.',
+                STATUS_VALIDATE_PAGE: '⚠️ Número de página inválido.',
+                STATUS_READING: 'Analizando documento PDF...',
+                STATUS_THINKING: 'La IA está redactando y optimizando tu perfil...',
 
                 // PDF/AI Strings
                 CV_TITLE: 'Lebenslauf (CV)',
@@ -338,23 +408,23 @@
             },
             en: {
                 // UI Strings
-                TITLE: 'CV Generator (ATS-Friendly)',
-                SUBTITLE: 'Ensures text is selectable and readable for Applicant Tracking Systems.',
-                LABEL_LANG_SELECT: '1. Select Output Language:',
-                LABEL_UPLOAD: '2. Upload your CV (PDF)',
-                FILENAME_PLACEHOLDER: '📂 Click to browse your CV',
-                LABEL_JOB_DESC: '3. Paste the Job Description',
-                JOB_DESC_PLACEHOLDER: 'Paste the complete job description here...',
-                LABEL_ANNEX_PAGE: '4. Annex Start Page (Images/Certificates)',
-                SMALL_ANNEX_DESC: 'E.g., If your adapted CV takes up 2 pages, and annexes start on page 3, enter **3**.',
-                BTN_COMBINE: '5. COMBINE AND ADAPT CV',
-                BTN_CV_DOWNLOAD: '📥 Download CV + Annexes (Merged)',
-                BTN_LETTER_DOWNLOAD: '📥 Download Cover Letter',
-                STATUS_COMPLETE: '✅ Process complete. Download your files below.',
-                STATUS_INCOMPLETE: '❌ Complete both fields.',
-                STATUS_VALIDATE_PAGE: '❌ Please enter a valid page number (minimum 1) for annexes.',
-                STATUS_READING: '📖 Reading PDF...',
-                STATUS_THINKING: '🧠 AI is writing your CV and Letter (this takes a few seconds)...',
+                TITLE: 'CV Generator (ATS)',
+                SUBTITLE: 'Smart ATS optimization and document merging.',
+                LABEL_LANG_SELECT: 'Language:',
+                LABEL_UPLOAD: '1. Current CV (PDF)',
+                FILENAME_PLACEHOLDER: 'Select file...',
+                LABEL_JOB_DESC: '2. Job Description',
+                JOB_DESC_PLACEHOLDER: 'Paste job description here...',
+                LABEL_ANNEX_PAGE: '3. Annex Settings',
+                SMALL_ANNEX_DESC: '(E.g. If new CV is 2 pages, annexes start on page 3).',
+                BTN_COMBINE: 'GENERATE AND ADAPT CV',
+                BTN_CV_DOWNLOAD: '📥 Download Optimized CV',
+                BTN_LETTER_DOWNLOAD: '📝 Download Cover Letter',
+                STATUS_COMPLETE: 'Process finished. Your documents are ready.',
+                STATUS_INCOMPLETE: '⚠️ Please upload CV and Job Description.',
+                STATUS_VALIDATE_PAGE: '⚠️ Invalid page number.',
+                STATUS_READING: 'Analyzing PDF document...',
+                STATUS_THINKING: 'AI is writing and optimizing your profile...',
 
                 // PDF/AI Strings
                 CV_TITLE: 'Curriculum Vitae (CV)',
@@ -377,23 +447,23 @@
             },
             de: {
                 // UI Strings
-                TITLE: 'Lebenslauf Generator (ATS-freundlich)',
-                SUBTITLE: 'Stellt sicher, dass der Text für Bewerber-Tracking-Systeme lesbar ist.',
-                LABEL_LANG_SELECT: '1. Zielsprache auswählen:',
-                LABEL_UPLOAD: '2. Lebenslauf hochladen (PDF)',
-                FILENAME_PLACEHOLDER: '📂 Klicken Sie hier, um Ihren Lebenslauf zu suchen',
-                LABEL_JOB_DESC: '3. Stellenbeschreibung einfügen',
-                JOB_DESC_PLACEHOLDER: 'Fügen Sie hier die vollständige Stellenbeschreibung ein...',
-                LABEL_ANNEX_PAGE: '4. Startseite der Anlagen (Bilder/Zertifikate)',
-                SMALL_ANNEX_DESC: 'Bsp. Wenn Ihr angepasster Lebenslauf 2 Seiten umfasst und die Anlagen auf Seite 3 beginnen, geben Sie **3** ein.',
-                BTN_COMBINE: '5. LEBENSLAUF KOMBINIEREN & ANPASSEN',
-                BTN_CV_DOWNLOAD: '📥 Lebenslauf + Anlagen herunterladen (Zusammengeführt)',
-                BTN_LETTER_DOWNLOAD: '📥 Anschreiben herunterladen',
-                STATUS_COMPLETE: '✅ Prozess abgeschlossen. Laden Sie Ihre Dateien unten herunter.',
-                STATUS_INCOMPLETE: '❌ Bitte füllen Sie beide Felder aus.',
-                STATUS_VALIDATE_PAGE: '❌ Bitte geben Sie eine gültige Seitenzahl (mindestens 1) für die Anlagen ein.',
-                STATUS_READING: '📖 PDF wird gelesen...',
-                STATUS_THINKING: '🧠 KI schreibt Ihren Lebenslauf und Anschreiben (dauert einige Sekunden)...',
+                TITLE: 'Lebenslauf Generator (ATS)',
+                SUBTITLE: 'Intelligente ATS-Optimierung und Dokumentenzusammenführung.',
+                LABEL_LANG_SELECT: 'Sprache:',
+                LABEL_UPLOAD: '1. Aktueller Lebenslauf (PDF)',
+                FILENAME_PLACEHOLDER: 'Datei auswählen...',
+                LABEL_JOB_DESC: '2. Stellenbeschreibung',
+                JOB_DESC_PLACEHOLDER: 'Stellenbeschreibung hier einfügen...',
+                LABEL_ANNEX_PAGE: '3. Anhang-Einstellungen',
+                SMALL_ANNEX_DESC: '(z.B. Wenn neuer CV 2 Seiten hat, beginnen Anhänge auf Seite 3).',
+                BTN_COMBINE: 'CV GENERIEREN & ANPASSEN',
+                BTN_CV_DOWNLOAD: '📥 Optimierten CV laden',
+                BTN_LETTER_DOWNLOAD: '📝 Anschreiben laden',
+                STATUS_COMPLETE: 'Vorgang abgeschlossen. Ihre Dokumente sind bereit.',
+                STATUS_INCOMPLETE: '⚠️ Bitte CV und Stellenbeschreibung hochladen.',
+                STATUS_VALIDATE_PAGE: '⚠️ Ungültige Seitenzahl.',
+                STATUS_READING: 'PDF wird analysiert...',
+                STATUS_THINKING: 'KI schreibt und optimiert Ihr Profil...',
 
                 // PDF/AI Strings
                 CV_TITLE: 'Lebenslauf (CV)',
@@ -427,23 +497,25 @@
             document.getElementById('subTitle').innerText = T.SUBTITLE;
 
             // Labels
-            document.getElementById('labelLangSelect').innerText = T.LABEL_LANG_SELECT;
             document.getElementById('labelUpload').innerText = T.LABEL_UPLOAD;
             document.getElementById('labelJobDesc').innerText = T.LABEL_JOB_DESC;
             document.getElementById('labelAnnexPage').innerText = T.LABEL_ANNEX_PAGE;
+            document.getElementById('labelLangSelect').innerText = T.LABEL_LANG_SELECT;
 
             // Placeholders y Textos Pequeños
-            document.getElementById('fileName').innerText = T.FILENAME_PLACEHOLDER;
+            // Verificamos si hay archivo cargado para no sobrescribir el nombre
+            const fileInput = document.getElementById('pdfInput');
+            if (!fileInput.files[0]) {
+                document.getElementById('fileName').innerText = T.FILENAME_PLACEHOLDER;
+            }
+            
             document.getElementById('jobDescription').placeholder = T.JOB_DESC_PLACEHOLDER;
-            document.getElementById('smallAnnexDesc').innerHTML = T.SMALL_ANNEX_DESC;
+            document.getElementById('smallAnnexDesc').innerText = T.SMALL_ANNEX_DESC;
 
             // Botones
             document.getElementById('combineBtn').innerText = T.BTN_COMBINE;
-            document.getElementById('btnCVDownload').innerText = T.BTN_CV_DOWNLOAD;
-            document.getElementById('btnLetterDownload').innerText = T.BTN_LETTER_DOWNLOAD;
-
-            // Limpiar estado
-            document.getElementById('status').innerText = "";
+            document.getElementById('btnCVDownload').innerHTML = `<span>📥</span> ${T.BTN_CV_DOWNLOAD}`;
+            document.getElementById('btnLetterDownload').innerHTML = `<span>📝</span> ${T.BTN_LETTER_DOWNLOAD}`;
         }
 
         function setLanguage(lang) {
@@ -452,7 +524,7 @@
                 btn.classList.remove('selected');
             });
             document.getElementById(`lang-${lang}`).classList.add('selected');
-            updateUI(lang); // Traducir la interfaz inmediatamente
+            updateUI(lang);
         }
 
         // Inicializar la interfaz al cargar
@@ -462,13 +534,16 @@
 
         function mostrarNombre() {
             const input = document.getElementById('pdfInput');
-            if (input.files[0]) document.getElementById('fileName').innerText = "✅ CV Cargado: " + input.files[0].name;
-            else document.getElementById('fileName').innerText = translations[window.appLanguage].FILENAME_PLACEHOLDER;
+            if (input.files[0]) {
+                document.getElementById('fileName').innerText = "✅ " + input.files[0].name;
+                document.getElementById('fileName').style.color = "#0f172a";
+                document.getElementById('fileName').style.fontWeight = "600";
+            }
         }
 
         // --- FUNCIÓN DE GENERACIÓN DE NOMBRE DE ARCHIVO ---
         function generateFilename(data, docType) {
-            const company = data.destinatario.nombre_empresa || "EMPRESA_OBJETIVO";
+            const company = data.destinatario.nombre_empresa || "EMPRESA";
             const fullName = data.nombre || "CANDIDATO";
 
             const now = new Date();
@@ -512,6 +587,7 @@
 
             // RESET UI
             btn.disabled = true;
+            btn.style.opacity = "0.7";
             downloadArea.style.display = 'none';
             previewContainer.style.display = 'none';
             previewContainer.innerHTML = '';
@@ -545,6 +621,8 @@
                 setTimeout(() => {
                     previewContainer.style.display = 'block';
                     downloadArea.style.display = 'flex';
+                    // Scroll suave hacia los botones
+                    downloadArea.scrollIntoView({ behavior: 'smooth' });
                 }, 500);
 
             } catch (error) {
@@ -553,6 +631,7 @@
                 progressBar.style.backgroundColor = '#ef4444'; // Rojo si hay error
             } finally {
                 btn.disabled = false;
+                btn.style.opacity = "1";
             }
         }
 
@@ -649,43 +728,20 @@
             const previewContainer = document.getElementById('previewContainer');
 
             let textPreview = `
---- CV ADAPTADO (PREVISUALIZACIÓN DE TEXTO SELECCIONABLE) ---
+--- DATOS EXTRAÍDOS (PREVIEW) ---
 
 NOMBRE: ${data.nombre || 'No encontrado'}
 CONTACTO: ${data.contacto || 'No encontrado'}
-PAÍS: ${data.pais_usuario || 'No encontrado'}
 
---- DATOS PERSONALES ---
-Nacimiento: ${data.datos_personales.fecha_nacimiento || ''} en ${data.datos_personales.lugar_nacimiento || ''}
-Nacionalidad: ${data.datos_personales.nacionalidad || 'No encontrado'}
-Estado Civil: ${data.datos_personales.estado_civil || 'No encontrado'}
-Dirección: ${data.datos_personales.direccion || 'No encontrado'}
+--- CARTA DE PRESENTACIÓN (Extracto) ---
+${data.carta_cuerpo_adaptado ? data.carta_cuerpo_adaptado.substring(0, 150) + '...' : 'No disponible'}
 
---- CARTA DE PRESENTACIÓN COMPLETA ---
-${data.carta_cuerpo_adaptado || 'Cuerpo de la carta no disponible.'}
-
---- EXPERIENCIA LABORAL ---
+--- EXPERIENCIA (Extracto) ---
 `;
 
-            if (Array.isArray(data.experiencia_laboral)) {
-                data.experiencia_laboral.forEach(exp => {
-                    textPreview += `
-Puesto: ${exp.cargo} en ${exp.empresa} (${exp.fechas})
-Logros: 
-- ${Array.isArray(exp.logros_adaptados) ? exp.logros_adaptados.map(l => `• ${l}`).join('\n- ') : 'No disponibles.'}
-
-`;
-                });
+            if (Array.isArray(data.experiencia_laboral) && data.experiencia_laboral.length > 0) {
+                textPreview += `${data.experiencia_laboral[0].cargo} en ${data.experiencia_laboral[0].empresa}...`;
             }
-
-            textPreview += `
---- HABILIDADES ---
-${data.habilidades_adaptadas.join(' | ') || 'Habilidades no disponibles.'}
-
---- EDUCACIÓN ---
-${data.educacion || 'Educación no disponible.'}
-----------------------------------------
-`;
 
             previewContainer.innerHTML = `<pre>${textPreview}</pre>`;
         }
@@ -955,6 +1011,4 @@ ${data.educacion || 'Educación no disponible.'}
     </script>
 
 </body>
-
-
 </html>
