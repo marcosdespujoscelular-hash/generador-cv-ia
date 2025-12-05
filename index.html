@@ -10,7 +10,6 @@
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
     
-<!-- GOOGLE ADSENSE -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5016816171104319"
      crossorigin="anonymous"></script>
 
@@ -114,6 +113,25 @@
             cursor: not-allowed;
         }
 
+        /* BARRA DE PROGRESO (NUEVO ESTILO) */
+        .progress-container {
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 8px;
+            margin-top: 20px;
+            height: 10px;
+            overflow: hidden;
+            display: none; /* Oculto por defecto */
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #1a73e8; /* Azul Google */
+            transition: width 0.5s ease-in-out;
+            border-radius: 8px;
+        }
+
         /* Contenedor de Idiomas */
         .language-selector {
             text-align: center;
@@ -154,6 +172,17 @@
             /* Apilado en móvil */
             gap: 10px;
             justify-content: center;
+            /* Borde superior para separar visualmente */
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        #previewContainer {
+            margin-top: 30px;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
         }
 
         /* Desktop Grid (optional, overrides mobile for larger screens) */
@@ -233,10 +262,12 @@
 
 
         <button id="combineBtn" onclick="combinarDocumentos()">5. COMBINAR Y ADAPTAR CV</button>
-        <p id="status" style="text-align:center; margin-top:10px;"></p>
-
-        <div id="previewContainer">
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
         </div>
+
+        <p id="status" style="text-align:center; margin-top:10px; color: #6b7280; font-size: 0.9em;"></p>
 
         <div id="downloadArea" style="display: none;">
             <button class="btn-download" id="btnCVDownload" onclick="descargarCV()">📥 Descargar CV + Anexos
@@ -244,11 +275,15 @@
             <button class="btn-download btn-download-letter" id="btnLetterDownload"
                 onclick="descargarCartaPresentacion()">📥 Descargar Carta de Presentación</button>
         </div>
+
+        <div id="previewContainer" style="display:none;">
+        </div>
+
     </div>
 
     <script>
         // --- 0. CONFIGURACIÓN GLOBAL Y TRADUCCIONES ---
-        const API_KEY = "AIzaSyB4Ky_nw8MIxh7eT7z6Vfr_W6dY1eHaIVw";
+        const API_KEY = "AIzaSyB4Ky_nw8MIxh7eT7z6Vfr_W6dY1eHaIVw"; // ASEGURATE DE QUE ESTA CLAVE TENGA PERMISOS
         const MODELO = "gemini-2.5-flash";
 
         const { jsPDF } = window.jspdf;
@@ -276,9 +311,11 @@
                 BTN_COMBINE: '5. COMBINAR Y ADAPTAR CV',
                 BTN_CV_DOWNLOAD: '📥 Descargar CV + Anexos (Fusionado)',
                 BTN_LETTER_DOWNLOAD: '📥 Descargar Carta de Presentación',
-                STATUS_COMPLETE: '✅ Proceso completado. Descarga el CV y la Carta de Presentación.',
+                STATUS_COMPLETE: '✅ Proceso completado. Descarga tus archivos abajo.',
                 STATUS_INCOMPLETE: '❌ Completa ambos campos.',
                 STATUS_VALIDATE_PAGE: '❌ Por favor, introduce un número de página válido (mínimo 1) para los anexos.',
+                STATUS_READING: '📖 Leyendo PDF...',
+                STATUS_THINKING: '🧠 La IA está redactando tu CV y Carta (esto toma unos segundos)...',
 
                 // PDF/AI Strings
                 CV_TITLE: 'Lebenslauf (CV)',
@@ -313,9 +350,11 @@
                 BTN_COMBINE: '5. COMBINE AND ADAPT CV',
                 BTN_CV_DOWNLOAD: '📥 Download CV + Annexes (Merged)',
                 BTN_LETTER_DOWNLOAD: '📥 Download Cover Letter',
-                STATUS_COMPLETE: '✅ Process complete. Download the CV and Cover Letter.',
+                STATUS_COMPLETE: '✅ Process complete. Download your files below.',
                 STATUS_INCOMPLETE: '❌ Complete both fields.',
                 STATUS_VALIDATE_PAGE: '❌ Please enter a valid page number (minimum 1) for annexes.',
+                STATUS_READING: '📖 Reading PDF...',
+                STATUS_THINKING: '🧠 AI is writing your CV and Letter (this takes a few seconds)...',
 
                 // PDF/AI Strings
                 CV_TITLE: 'Curriculum Vitae (CV)',
@@ -350,9 +389,11 @@
                 BTN_COMBINE: '5. LEBENSLAUF KOMBINIEREN & ANPASSEN',
                 BTN_CV_DOWNLOAD: '📥 Lebenslauf + Anlagen herunterladen (Zusammengeführt)',
                 BTN_LETTER_DOWNLOAD: '📥 Anschreiben herunterladen',
-                STATUS_COMPLETE: '✅ Prozess abgeschlossen. Laden Sie den Lebenslauf und das Anschreiben herunter.',
+                STATUS_COMPLETE: '✅ Prozess abgeschlossen. Laden Sie Ihre Dateien unten herunter.',
                 STATUS_INCOMPLETE: '❌ Bitte füllen Sie beide Felder aus.',
                 STATUS_VALIDATE_PAGE: '❌ Bitte geben Sie eine gültige Seitenzahl (mindestens 1) für die Anlagen ein.',
+                STATUS_READING: '📖 PDF wird gelesen...',
+                STATUS_THINKING: '🧠 KI schreibt Ihren Lebenslauf und Anschreiben (dauert einige Sekunden)...',
 
                 // PDF/AI Strings
                 CV_TITLE: 'Lebenslauf (CV)',
@@ -455,6 +496,9 @@
             const status = document.getElementById('status');
             const downloadArea = document.getElementById('downloadArea');
             const previewContainer = document.getElementById('previewContainer');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+
             const lang = window.appLanguage;
             const T = translations[lang];
 
@@ -466,11 +510,16 @@
                 return;
             }
 
+            // RESET UI
             btn.disabled = true;
             downloadArea.style.display = 'none';
             previewContainer.style.display = 'none';
             previewContainer.innerHTML = '';
-            status.innerText = `⏳ 1/3 ${T.LABEL_UPLOAD} y ${T.LABEL_JOB_DESC}...`;
+            
+            // INICIAR BARRA DE PROGRESO
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '10%'; // Inicio
+            status.innerText = T.STATUS_READING;
 
             try {
                 const file = fileInput.files[0];
@@ -479,12 +528,16 @@
                 originalPdfBuffer = buffer;
 
                 const pdfData = await extraerTexto(file);
-
-                status.innerText = `🧠 2/3 ${T.BTN_COMBINE}...`;
+                
+                // ACTUALIZAR PROGRESO (PDF LEIDO)
+                progressBar.style.width = '40%'; 
+                status.innerText = T.STATUS_THINKING;
 
                 const jsonCV = await procesarConIA(pdfData.text, jobDesc, lang);
                 finalCVData = jsonCV;
 
+                // COMPLETAR PROGRESO
+                progressBar.style.width = '100%';
                 status.innerText = T.STATUS_COMPLETE;
 
                 renderNewCVTemplate(jsonCV);
@@ -497,6 +550,7 @@
             } catch (error) {
                 console.error(error);
                 status.innerText = "❌ Error: " + error.message;
+                progressBar.style.backgroundColor = '#ef4444'; // Rojo si hay error
             } finally {
                 btn.disabled = false;
             }
@@ -904,4 +958,3 @@ ${data.educacion || 'Educación no disponible.'}
 
 
 </html>
-
