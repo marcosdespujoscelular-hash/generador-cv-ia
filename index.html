@@ -293,9 +293,10 @@
         
         <div class="language-selector">
             <label id="labelLangSelect">Idioma / Language:</label>
-            <button id="lang-es" onclick="setLanguage('es')" class="selected"><img src="https://flagcdn.com/w40/es.png" alt="Español"></button>
-            <button id="lang-en" onclick="setLanguage('en')"><img src="https://flagcdn.com/w40/gb.png" alt="English"></button>
+            <button id="lang-es" onclick="setLanguage('es')"><img src="https://flagcdn.com/w40/es.png" alt="Español"></button>
+            <button id="lang-en" onclick="setLanguage('en')" class="selected"><img src="https://flagcdn.com/w40/gb.png" alt="English"></button>
             <button id="lang-de" onclick="setLanguage('de')"><img src="https://flagcdn.com/w40/de.png" alt="Deutsch"></button>
+            <button id="lang-pt" onclick="setLanguage('pt')"><img src="https://flagcdn.com/w40/pt.png" alt="Português"></button>
         </div>
 
         <h1 id="mainTitle">Generador de CV</h1>
@@ -361,7 +362,7 @@
 
         let finalCVData = null;
         let originalPdfBuffer = null;
-        window.appLanguage = 'es';
+        window.appLanguage = 'en';
 
         // DEFINICIÓN DE MÁRGENES (mm)
         const LEFT_MARGIN = 20;
@@ -483,6 +484,45 @@
                 LETTER_GENERIC_SALUTATION: 'Sehr geehrte Damen und Herren,',
                 LETTER_GENERIC_TEAM: 'Personalabteilung von',
                 COUNTRY_RESIDENCE: 'Wohnsitzland',
+            },
+            pt: {
+                // UI Strings
+                TITLE: 'Gerador de CV (ATS)',
+                SUBTITLE: 'Otimização ATS inteligente e fusão de documentos.',
+                LABEL_LANG_SELECT: 'Idioma:',
+                LABEL_UPLOAD: '1. Seu CV Atual (PDF)',
+                FILENAME_PLACEHOLDER: 'Selecionar arquivo...',
+                LABEL_JOB_DESC: '2. Descrição da Vaga',
+                JOB_DESC_PLACEHOLDER: 'Cole aqui o texto da oferta de emprego...',
+                LABEL_ANNEX_PAGE: '3. Configuração de Anexos',
+                SMALL_ANNEX_DESC: '(Ex: Se o novo CV tiver 2 páginas, os anexos começam na página 3).',
+                BTN_COMBINE: 'GERAR E ADAPTAR CV',
+                BTN_CV_DOWNLOAD: '📥 Baixar CV Otimizado',
+                BTN_LETTER_DOWNLOAD: '📝 Baixar Carta de Apresentação',
+                STATUS_COMPLETE: 'Processo concluído. Seus documentos estão prontos.',
+                STATUS_INCOMPLETE: '⚠️ Por favor, envie seu CV e a descrição da vaga.',
+                STATUS_VALIDATE_PAGE: '⚠️ Número de página inválido.',
+                STATUS_READING: 'Analisando documento PDF...',
+                STATUS_THINKING: 'A IA está redigindo e otimizando seu perfil...',
+
+                // PDF/AI Strings
+                CV_TITLE: 'Curriculum Vitae (CV)',
+                EXP_TITLE: 'EXPERIÊNCIA PROFISSIONAL',
+                SKILLS_TITLE: 'COMPETÊNCIAS',
+                EDU_TITLE: 'FORMAÇÃO',
+                PERSONAL_TITLE: 'DADOS PESSOAIS',
+                FIELD_CONTACTO: 'Contacto',
+                FIELD_NACIONALIDAD: 'Nacionalidade',
+                FIELD_ESTADO_CIVIL: 'Estado Civil',
+                FIELD_FECHA_NACIMIENTO: 'Data de Nascimento',
+                FIELD_LUGAR_NACIMIENTO: 'Naturalidade',
+                FIELD_DIRECCION: 'Morada',
+                LETTER_SUBJECT: 'Candidatura para o cargo de',
+                LETTER_CLOSING_SALUTATION: 'Atenciosamente,',
+                LETTER_CLOSING_BODY: 'Agradeço o seu tempo e consideração. Anexo o meu CV para sua análise detalhada e aguardo com entusiasmo a oportunidade de discutir a minha candidatura.',
+                LETTER_GENERIC_SALUTATION: 'Exmo(a). Senhor(a) Responsável de Recrutamento,',
+                LETTER_GENERIC_TEAM: 'Equipa de Recursos Humanos de',
+                COUNTRY_RESIDENCE: 'País de Residência',
             }
         };
 
@@ -652,7 +692,7 @@
         async function procesarConIA(cv, oferta, lang) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent?key=${API_KEY}`;
 
-            const langInstruction = `Todo el contenido de los campos de texto debe ser escrito y traducido al idioma: ${lang === 'es' ? 'Español' : lang === 'en' ? 'Inglés' : 'Alemán'}.`;
+            const langInstruction = `Todo el contenido de los campos de texto debe ser escrito y traducido al idioma: ${lang === 'es' ? 'Español' : lang === 'en' ? 'Inglés' : lang === 'de' ? 'Alemán' : 'Portugués'}.`;
 
             const prompt = `
             Actúa como un reclutador experto y redactor de CVs. Tu tarea es generar un CV adaptado y una Carta de Presentación altamente persuasiva.
